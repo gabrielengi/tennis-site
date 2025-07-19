@@ -26,14 +26,6 @@ export const auth = defineAuth({
       logoutUrls: ['http://localhost:5173/'], // Your application's redirect URLs after logout
     }
   },
-  userAttributes: { // Define which user attributes are available/required
-    givenName: {
-      required: false, // Set to true if this field must be provided during signup
-    },
-    familyName: {
-      required: false, // Set to true if this field must be provided during signup
-    },
-  },
   // The API Key for data access is configured implicitly by data/resource.ts
   // when allow.publicApiKey() is used. It is not defined here in auth/resource.ts.
 });
