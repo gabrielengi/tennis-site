@@ -1,17 +1,41 @@
+// amplify/data/resource.ts
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
 const schema = a.schema({
   Todo: a
     .model({
-      content: a.string(),
+      dateSlot: a.string().required(), // e.g., "YYYY-MM-DD"
+      timeSlot: a.string().required(), // e.g., "HH:MM"
+      bookedByUsername: a.string(), // The username (e.g., google_112...)
+      bookedByFirstName: a.string(), // Booker's first name
+      bookedByLastName: a.string(),  // Booker's last name
+      bookedByEmail: a.string(),     // Booker's email
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization(allow => [
+      allow.owner(), // Owner can do anything to their own booked slot (read, create, update, delete)
+      allow.groups(['Admins']).to(['read', 'create', 'update', 'delete']), // Admins have full control over all Todo items
+      // Authenticated users need 'read' to see the schedule and 'update' to book/unbook slots.
+      // 'create' is not needed here as Todo items are pre-created by the initial data setup.
+      allow.authenticated().to(['read', 'update']),
+      allow.publicApiKey().to(['read']) // Public (unauthenticated) users can read all Todo items (view schedule)
+    ]),
+
+  WaitlistEntry: a
+    .model({
+      email: a.string().required(),
+      firstName: a.string(), // ADDED firstName
+      lastName: a.string(),  // ADDED lastName
+      createdAt: a.datetime().required(), // Using datetime for consistency and proper sorting
+    })
+    .authorization(allow => [
+      allow.owner(), // Only the owner can read/update/delete their waitlist entry
+      // CRITICAL FIX: Authenticated users need 'create', 'read', and 'delete' permission to manage their waitlist status.
+      allow.authenticated().to(['create', 'read', 'delete']),
+      allow.groups(['Admins']).to(['read', 'create', 'update', 'delete']), // Admins can manage all waitlist entries
+      // Removed allow.guest().to(['read']) and allow.publicApiKey().to(['read']) for WaitlistEntry
+      // as waitlist entries are typically private to authenticated users and admins.
+      // If public read is desired, these can be re-added carefully.
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,39 +43,9 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
+    defaultAuthorizationMode: 'userPool', // Ensures authenticated users use User Pool auth by default
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
   },
 });
-
-/*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
-=========================================================================*/
-
-/*
-"use client"
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>() // use this Data client for CRUDL requests
-*/
-
-/*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
-=========================================================================*/
-
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
