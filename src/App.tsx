@@ -389,8 +389,9 @@ function App() {
           console.error("Error observing waitlist entries in real-time:", error);
         }
       });
-    } else {
-    }
+    } 
+    // else {
+    // }
 
     return () => {
       if (todoSub) {
@@ -435,8 +436,8 @@ function App() {
       }, { authMode: 'userPool' });
       // FIX: Access .data property from the result for TypeScript correctness
       if (updatedTodoResult.data) {
-        const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number);
-        const localDateForAlert = new Date(year, month - 1, day);
+ //       const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number);
+        // const localDateForAlert = new Date(year, month - 1, day);
         setModalContent("Booking successfully removed by admin.");
       } else {
         setModalContent("Failed to remove booking: No data returned.");
@@ -543,14 +544,14 @@ function App() {
             hideModal();
         }
       } else {
-        const newTodo = await client.models.Todo.create({
-          dateSlot: dateSlot,
-          timeSlot: timeSlot,
-          bookedByUsername: currentUserLoginId,
-          bookedByFirstName: currentUserFirstName,
-          bookedByLastName: currentUserLastName,
-          bookedByEmail: currentUserEmail,
-        }, { authMode: 'userPool' });
+        // const newTodo = await client.models.Todo.create({
+        //   dateSlot: dateSlot,
+        //   timeSlot: timeSlot,
+        //   bookedByUsername: currentUserLoginId,
+        //   bookedByFirstName: currentUserFirstName,
+        //   bookedByLastName: currentUserLastName,
+        //   bookedByEmail: currentUserEmail,
+        // }, { authMode: 'userPool' });
         const [year, month, day] = dateSlot.split('-').map(Number);
         const localDateForAlert = new Date(year, month - 1, day);
         setModalContent(`New slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} created and booked!`);
@@ -661,12 +662,12 @@ function App() {
     );
   }
 
-  const displayNameForHeader = formatDisplayName(
-    user?.attributes?.given_name,
-    user?.attributes?.family_name,
-    user?.attributes?.email,
-    user?.username
-  );
+  // const displayNameForHeader = formatDisplayName(
+  //   user?.attributes?.given_name,
+  //   user?.attributes?.family_name,
+  //   user?.attributes?.email,
+  //   user?.username
+  // );
 
   return (
     <main style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '1rem', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
