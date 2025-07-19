@@ -21,9 +21,13 @@ export const auth = defineAuth({
       },
       callbackUrls: [ // Your application's redirect URLs after login
         'http://localhost:5173/',
+        'https://main.d34rismepnlcfp.amplifyapp.com/',
         'https://7c70d950d9554a4a25a8.auth.us-east-2.amazoncognito.com/oauth2/idpresponse'
       ],
-      logoutUrls: ['http://localhost:5173/'], // Your application's redirect URLs after logout
+      logoutUrls: [
+        'http://localhost:5173/',
+        'https://main.d34rismepnlcfp.amplifyapp.com/',
+      ], // Your application's redirect URLs after logout
     }
   },
   // The API Key for data access is configured implicitly by data/resource.ts
