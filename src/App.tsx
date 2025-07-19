@@ -389,9 +389,8 @@ function App() {
           console.error("Error observing waitlist entries in real-time:", error);
         }
       });
-    } 
-    // else {
-    // }
+    } else {
+    }
 
     return () => {
       if (todoSub) {
@@ -436,8 +435,8 @@ function App() {
       }, { authMode: 'userPool' });
       // FIX: Access .data property from the result for TypeScript correctness
       if (updatedTodoResult.data) {
-        // const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number);
-        // const localDateForAlert = new Date(year, month - 1, day);
+        const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number);
+        const localDateForAlert = new Date(year, month - 1, day);
         setModalContent("Booking successfully removed by admin.");
       } else {
         setModalContent("Failed to remove booking: No data returned.");
@@ -544,14 +543,14 @@ function App() {
             hideModal();
         }
       } else {
-        // const newTodo = await client.models.Todo.create({
-        //   dateSlot: dateSlot,
-        //   timeSlot: timeSlot,
-        //   bookedByUsername: currentUserLoginId,
-        //   bookedByFirstName: currentUserFirstName,
-        //   bookedByLastName: currentUserLastName,
-        //   bookedByEmail: currentUserEmail,
-        // }, { authMode: 'userPool' });
+        const newTodo = await client.models.Todo.create({
+          dateSlot: dateSlot,
+          timeSlot: timeSlot,
+          bookedByUsername: currentUserLoginId,
+          bookedByFirstName: currentUserFirstName,
+          bookedByLastName: currentUserLastName,
+          bookedByEmail: currentUserEmail,
+        }, { authMode: 'userPool' });
         const [year, month, day] = dateSlot.split('-').map(Number);
         const localDateForAlert = new Date(year, month - 1, day);
         setModalContent(`New slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} created and booked!`);
@@ -662,12 +661,12 @@ function App() {
     );
   }
 
-  // const displayNameForHeader = formatDisplayName(
-  //   user?.attributes?.given_name,
-  //   user?.attributes?.family_name,
-  //   user?.attributes?.email,
-  //   user?.username
-  // );
+  const displayNameForHeader = formatDisplayName(
+    user?.attributes?.given_name,
+    user?.attributes?.family_name,
+    user?.attributes?.email,
+    user?.username
+  );
 
   return (
     <main style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '1rem', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -695,17 +694,23 @@ function App() {
               onClick={signOut}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
+                backgroundColor: '#f0f0f0', // Light gray
+                color: '#4a4a4a', // Darker gray text
                 fontWeight: '600',
                 borderRadius: '0.375rem',
-                boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
-                transition: 'background-color 0.2s ease-in-out',
-                border: 'none',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // Softer shadow
+                transition: 'background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                border: '1px solid #d0d0d0', // Subtle border
                 cursor: 'pointer',
               }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#e0e0e0'; // Slightly darker gray on hover
+                e.currentTarget.style.boxShadow = '0 2px 4px 0 rgba(0, 0, 0, 0.1)'; // Slightly more pronounced shadow on hover
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#f0f0f0';
+                e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+              }}
             >
               Sign out
             </button>
@@ -755,7 +760,7 @@ function App() {
             I have experience coaching private lessons, assistant coaching for a tennis camp, and being a hitting partner for top junior OTA players.
           </p>
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
-            Lessons are held at the public courts at WCI so we are limited to a couple cans of balls. There's also a small chance the courts will be preoccupied, in which case we'll work on technique, volleys, and hitting against a wall until a court becomes available.
+            Lessons are held at the public courts at WCI. We are limited to a couple cans of balls. There's also a small chance the courts will be preoccupied, in which case we'll work on technique, volleys, and hitting against a wall until a court becomes available.
           </p>
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
             Lessons are **$30 for a 1-hour session**, with your **first lesson only $10!** You can also come with friends and split the cost. Click on an available space in the calendar to book a lesson, and I'll personally send you an email to confirm. Currently, I'm only accepting **cash payments**.
