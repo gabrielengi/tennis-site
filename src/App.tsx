@@ -433,9 +433,8 @@ function App() {
         bookedByLastName: null,
         bookedByEmail: null,
       }, { authMode: 'userPool' });
-      // FIX: Access .data property from the result for TypeScript correctness
+      // Access .data property from the result for TypeScript correctness
       if (updatedTodoResult.data) {
-        // Removed the unused destructuring of [year, month, day] as they were not used here.
         setModalContent("Booking successfully removed by admin.");
       } else {
         setModalContent("Failed to remove booking: No data returned.");
@@ -504,14 +503,11 @@ function App() {
             bookedByLastName: null,
             bookedByEmail: null,
           }, { authMode: 'userPool' });
-          const [year, month, day] = dateSlot.split('-').map(Number);
-          setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} unbooked.`);
+          setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} unbooked.`);
           hideModal();
         }
         else if (targetTodo.bookedByUsername !== null) {
-          const [year, month, day] = dateSlot.split('-').map(Number);
-          // Directly use the date in getFormattedDate
-          setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
+          setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
           hideModal();
           if (isAdmin) {
             setBookerDetails({
@@ -526,6 +522,7 @@ function App() {
           }
         }
         else {
+            // FIX: Changed from .create to .update for booking an existing unbooked slot
             await client.models.Todo.update({
               id: targetTodo.id,
               bookedByUsername: currentUserLoginId,
@@ -533,11 +530,11 @@ function App() {
               bookedByLastName: currentUserLastName,
               bookedByEmail: currentUserEmail,
             }, { authMode: 'userPool' });
-            const [year, month, day] = dateSlot.split('-').map(Number);
-            setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} booked.`);
+            setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} booked.`);
             hideModal();
         }
       } else {
+        // This 'else' block handles the case where targetTodo is NOT found, meaning it's a new slot to be created.
         await client.models.Todo.create({
           dateSlot: dateSlot,
           timeSlot: timeSlot,
@@ -546,8 +543,7 @@ function App() {
           bookedByLastName: currentUserLastName,
           bookedByEmail: currentUserEmail,
         }, { authMode: 'userPool' });
-        const [year, month, day] = dateSlot.split('-').map(Number);
-        setModalContent(`New slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} created and booked!`);
+        setModalContent(`New slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} created and booked!`);
         hideModal();
       }
     } catch (error: unknown) {
@@ -738,10 +734,10 @@ function App() {
             alt="Grand River Tennis Lessons Logo"
             style={{
               width: '100%', // Make it responsive
-              maxWidth: '650px', // Limit max width to a reasonable size
+              maxWidth: '700px', // Limit max width to a reasonable size
               height: 'auto', // Maintain aspect ratio
        //       borderRadius: '0.5rem', // Apply rounded corners
-        //      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+       //       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
             // Fallback for image loading errors (optional, but good practice)
             onError={(e) => {
@@ -752,33 +748,33 @@ function App() {
         </div>
 
         {/* Tennis Coaching Blurb - Updated content and alignment */}
-        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151' }}> {/* Changed textAlign to 'left' */}
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Hello! My name is Gabriel, and I'm looking to share my love for tennis and provide affordable lessons to people of all ages and skill levels.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             I have experience coaching private lessons, assistant coaching for a tennis camp, and being a hitting partner for top junior OTA players.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Lessons are held at the public courts at WCI. We are limited to a couple cans of balls. There's also a small chance the courts will be preoccupied, in which case we'll work on technique, volleys, and hitting against a wall until a court becomes available.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Lessons are <strong>$30 for a 1-hour session</strong>, with your <strong>first lesson only $10!</strong> You can also come with friends and split the cost. Click on an available space in the calendar to book a lesson, and I'll personally send you an email to confirm. Currently, I'm only accepting <strong>cash payments</strong>.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5' }}> {/* Removed individual horizontal margins */}
             If you want to cancel a booking, simply click your slot on the calendar. Please try to avoid canceling within 3 hours of the lesson, but if you forget, there are no fees or worries.
           </p>
         </div>
 
         {/* Group Lesson Description - Updated content and alignment */}
-        <div style={{ marginBottom: '1rem', textAlign: 'left', color: '#374151' }}> {/* Changed textAlign to 'left' */}
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+        <div style={{ marginBottom: '1rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5' }}> {/* Removed individual horizontal margins */}
             Interested in <strong>group sessions</strong>? I'm looking to organize longer group sessions with a mix of tennis drills and singles/doubles matches. Sign up for the waitlist, and once I have enough interest, I'll email everyone to work something out.
           </p>
         </div>
 
         {/* Email Contact Line - Added here and aligned left */}
-        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Changed textAlign to 'left' and added horizontal margins */}
+        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', fontSize: '1rem', lineHeight: '1.5', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
             <p>Feel free to email <a href="mailto:gabriel.jsh@gmail.com" style={{ color: '#2563eb', textDecoration: 'underline' }}>gabriel.jsh@gmail.com</a> if you have any questions!</p>
         </div>
 
