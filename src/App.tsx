@@ -108,18 +108,18 @@ const formatDisplayName = (
 };
 
 // Type guard function to filter out null/undefined Todo items and check for required properties
-function isValidTodo(item: unknown): item is Schema["Todo"]["type"] { // Changed 'any' to 'unknown'
+function isValidTodo(item: unknown): item is Schema["Todo"]["type"] {
   return item !== null && item !== undefined &&
-         typeof item === 'object' && // Added object check for unknown
+         typeof item === 'object' &&
          'id' in item && typeof (item as Schema["Todo"]["type"]).id === 'string' &&
          'dateSlot' in item && typeof (item as Schema["Todo"]["type"]).dateSlot === 'string' &&
          'timeSlot' in item && typeof (item as Schema["Todo"]["type"]).timeSlot === 'string';
 }
 
 // Type guard function to filter out null/undefined WaitlistEntry items and check for required properties
-function isValidWaitlistEntry(item: unknown): item is Schema["WaitlistEntry"]["type"] { // Changed 'any' to 'unknown'
+function isValidWaitlistEntry(item: unknown): item is Schema["WaitlistEntry"]["type"] {
   return item !== null && item !== undefined &&
-         typeof item === 'object' && // Added object check for unknown
+         typeof item === 'object' &&
          'id' in item && typeof (item as Schema["WaitlistEntry"]["type"]).id === 'string' &&
          'email' in item && typeof (item as Schema["WaitlistEntry"]["type"]).email === 'string' &&
          ('firstName' in item ? (typeof (item as Schema["WaitlistEntry"]["type"]).firstName === 'string' || (item as Schema["WaitlistEntry"]["type"]).firstName === null) : true) &&
@@ -389,9 +389,8 @@ function App() {
           console.error("Error observing waitlist entries in real-time:", error);
         }
       });
-    } 
-    // else {
-    // }
+    }
+    // Removed empty else block statement here to resolve ESLint warning.
 
     return () => {
       if (todoSub) {
@@ -436,15 +435,15 @@ function App() {
       }, { authMode: 'userPool' });
       // FIX: Access .data property from the result for TypeScript correctness
       if (updatedTodoResult.data) {
- //       const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number);
-        // const localDateForAlert = new Date(year, month - 1, day);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number); // Added eslint-disable-next-line
         setModalContent("Booking successfully removed by admin.");
       } else {
         setModalContent("Failed to remove booking: No data returned.");
       }
       setShowBookerDetailsModal(false);
       hideModal();
-    } catch (error: unknown) { // Changed 'any' to 'unknown'
+    } catch (error: unknown) {
       console.error("Error removing booking as admin:", error);
       if (
         typeof error === 'object' &&
@@ -506,28 +505,27 @@ function App() {
             bookedByLastName: null,
             bookedByEmail: null,
           }, { authMode: 'userPool' });
-          const [year, month, day] = dateSlot.split('-').map(Number);
-          const localDateForAlert = new Date(year, month - 1, day);
-          setModalContent(`Slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} unbooked.`);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+          setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} unbooked.`);
           hideModal();
         }
         else if (targetTodo.bookedByUsername !== null) {
-          const [year, month, day] = dateSlot.split('-').map(Number);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
           const localDateForAlert = new Date(year, month - 1, day);
-
+          setModalContent(`Slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
+          hideModal();
           if (isAdmin) {
             setBookerDetails({
               id: targetTodo.id,
               dateSlot: targetTodo.dateSlot,
               timeSlot: targetTodo.timeSlot,
               firstName: targetTodo.bookedByFirstName || 'N/A',
-              lastName: targetTodo.bookedByLastName || 'N/A', // FIX: Corrected property name
-              email: targetTodo.bookedByEmail || 'N/A',       // FIX: Corrected property name
+              lastName: targetTodo.bookedByLastName || 'N/A',
+              email: targetTodo.bookedByEmail || 'N/A',
             });
             setShowBookerDetailsModal(true);
-          } else {
-            setModalContent(`Slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
-            hideModal();
           }
         }
         else {
@@ -538,26 +536,27 @@ function App() {
               bookedByLastName: currentUserLastName,
               bookedByEmail: currentUserEmail,
             }, { authMode: 'userPool' });
-            const [year, month, day] = dateSlot.split('-').map(Number);
-            const localDateForAlert = new Date(year, month - 1, day);
-            setModalContent(`Slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} booked.`);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+            setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} booked.`);
             hideModal();
         }
       } else {
-        // const newTodo = await client.models.Todo.create({
-        //   dateSlot: dateSlot,
-        //   timeSlot: timeSlot,
-        //   bookedByUsername: currentUserLoginId,
-        //   bookedByFirstName: currentUserFirstName,
-        //   bookedByLastName: currentUserLastName,
-        //   bookedByEmail: currentUserEmail,
-        // }, { authMode: 'userPool' });
-        const [year, month, day] = dateSlot.split('-').map(Number);
-        const localDateForAlert = new Date(year, month - 1, day);
-        setModalContent(`New slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} created and booked!`);
+        // Removed assignment to 'newTodo' as it was unused.
+        await client.models.Todo.create({
+          dateSlot: dateSlot,
+          timeSlot: timeSlot,
+          bookedByUsername: currentUserLoginId,
+          bookedByFirstName: currentUserFirstName,
+          bookedByLastName: currentUserLastName,
+          bookedByEmail: currentUserEmail,
+        }, { authMode: 'userPool' });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+        setModalContent(`New slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} created and booked!`);
         hideModal();
       }
-    } catch (error: unknown) { // Changed 'any' to 'unknown'
+    } catch (error: unknown) {
       console.error("Error booking/unbooking slot:", error);
       if (
         typeof error === 'object' &&
@@ -632,7 +631,7 @@ function App() {
         }, { authMode: 'userPool' });
         setModalContent("You have been added to the group lesson waitlist! We'll notify you when spots become available.");
       }
-    } catch (error: unknown) { // Changed 'any' to 'unknown'
+    } catch (error: unknown) {
       console.error("Error managing waitlist:", error);
       if (
         typeof error === 'object' &&
@@ -662,6 +661,7 @@ function App() {
     );
   }
 
+  // Removed 'displayNameForHeader' as it was assigned a value but never used.
   // const displayNameForHeader = formatDisplayName(
   //   user?.attributes?.given_name,
   //   user?.attributes?.family_name,
@@ -737,7 +737,7 @@ function App() {
           )}
         </div>
 
-        {/* Header section with title - Adjusted for centering */}
+        {/* Header section with logo instead of title */}
         <div style={{
           marginBottom: '1.5rem',
           display: 'flex',
@@ -747,9 +747,22 @@ function App() {
           paddingBottom: '0.5rem',
           borderBottom: '1px solid #e5e7eb',
         }}>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }}>
-            Grand River Tennis Lessons
-          </h1>
+          <img
+            src="/grtaheader.png" // Placeholder URL
+            alt="Grand River Tennis Lessons Logo"
+            style={{
+              width: '100%', // Make it responsive
+              maxWidth: '600px', // Limit max width to a reasonable size
+              height: 'auto', // Maintain aspect ratio
+        //      borderRadius: '0.5rem', // Apply rounded corners
+         //     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            }}
+            // Fallback for image loading errors (optional, but good practice)
+            onError={(e) => {
+              e.currentTarget.onerror = null; // Prevents infinite loop if fallback also fails
+              e.currentTarget.src = "https://placehold.co/800x185/E0E7FF/000000?text=Logo+Unavailable";
+            }}
+          />
         </div>
 
         {/* Tennis Coaching Blurb - Updated content and alignment */}
@@ -764,7 +777,7 @@ function App() {
             Lessons are held at the public courts at WCI. We are limited to a couple cans of balls. There's also a small chance the courts will be preoccupied, in which case we'll work on technique, volleys, and hitting against a wall until a court becomes available.
           </p>
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
-            Lessons are **$30 for a 1-hour session**, with your **first lesson only $10!** You can also come with friends and split the cost. Click on an available space in the calendar to book a lesson, and I'll personally send you an email to confirm. Currently, I'm only accepting **cash payments**.
+            Lessons are <strong>$30 for a 1-hour session</strong>, with your <strong>first lesson only $10!</strong> You can also come with friends and split the cost. Click on an available space in the calendar to book a lesson, and I'll personally send you an email to confirm. Currently, I'm only accepting <strong>cash payments</strong>.
           </p>
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
             If you want to cancel a booking, simply click your slot on the calendar. Please try to avoid canceling within 3 hours of the lesson, but if you forget, there are no fees or worries.
@@ -774,7 +787,7 @@ function App() {
         {/* Group Lesson Description - Updated content and alignment */}
         <div style={{ marginBottom: '1rem', textAlign: 'left', color: '#374151' }}> {/* Changed textAlign to 'left' */}
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
-            Interested in group sessions? I'm looking to organize longer group sessions with a mix of tennis drills and singles/doubles matches. Sign up for the waitlist, and once I have enough interest, I'll email everyone to work something out.
+            Interested in <strong>group sessions</strong>? I'm looking to organize longer group sessions with a mix of tennis drills and singles/doubles matches. Sign up for the waitlist, and once I have enough interest, I'll email everyone to work something out.
           </p>
         </div>
 
