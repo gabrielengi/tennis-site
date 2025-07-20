@@ -652,18 +652,29 @@ function App() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '1rem', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <main style={{
+      minHeight: '100vh',
+      backgroundColor: '#f3f4f6',
+      fontFamily: 'sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '100vw', // Ensure main takes full viewport width
+      overflowX: 'hidden', // Prevent main from causing horizontal scroll
+      boxSizing: 'border-box', // Include padding in width calculation for main
+    }}>
       <div style={{
-        width: '100%',
+        width: '100%', // Take full width of its parent (main, which is 100vw)
         maxWidth: '64rem',
         backgroundColor: '#ffffff',
         borderRadius: '0.5rem',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        padding: '1.5rem',
+        padding: 'clamp(1rem, 5vw, 1.5rem)', // Responsive padding for content
         flexShrink: 0,
         maxHeight: 'calc(100vh - 2rem)',
-        overflowY: 'auto',
+        overflowY: 'auto', // Allow vertical scrolling for the content box
         position: 'relative',
+        boxSizing: 'border-box', // Include padding in width calculation for this div
       }}>
 
         <div style={{
@@ -736,8 +747,6 @@ function App() {
               width: '100%', // Make it responsive
               maxWidth: '700px', // Limit max width to a reasonable size
               height: 'auto', // Maintain aspect ratio
-       //       borderRadius: '0.5rem', // Apply rounded corners
-       //       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
             // Fallback for image loading errors (optional, but good practice)
             onError={(e) => {
@@ -820,12 +829,13 @@ function App() {
           )}
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto', width: '100%', boxSizing: 'border-box' }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: `80px repeat(7, 1fr)`,
+            gridTemplateColumns: `80px repeat(7, minmax(80px, 1fr))`, // Fixed 80px for the time column
             gap: '0.25rem',
             fontSize: '0.875rem',
+            minWidth: '750px', // Increased minWidth to ensure horizontal scroll
           }}>
             <div style={{ padding: '0.5rem', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', backgroundColor: '#f9fafb', fontWeight: '600', color: '#374151', borderRadius: '0.5rem 0 0 0', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></div>
             {sevenDates.map((dateObj) => (
