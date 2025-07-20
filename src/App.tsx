@@ -435,8 +435,7 @@ function App() {
       }, { authMode: 'userPool' });
       // FIX: Access .data property from the result for TypeScript correctness
       if (updatedTodoResult.data) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [year, month, day] = updatedTodoResult.data.dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+        // Removed the unused destructuring of [year, month, day] as they were not used here.
         setModalContent("Booking successfully removed by admin.");
       } else {
         setModalContent("Failed to remove booking: No data returned.");
@@ -505,16 +504,14 @@ function App() {
             bookedByLastName: null,
             bookedByEmail: null,
           }, { authMode: 'userPool' });
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+          const [year, month, day] = dateSlot.split('-').map(Number);
           setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} unbooked.`);
           hideModal();
         }
         else if (targetTodo.bookedByUsername !== null) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
-          const localDateForAlert = new Date(year, month - 1, day);
-          setModalContent(`Slot ${getFormattedDate(localDateForAlert, 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
+          const [year, month, day] = dateSlot.split('-').map(Number);
+          // Directly use the date in getFormattedDate
+          setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
           hideModal();
           if (isAdmin) {
             setBookerDetails({
@@ -536,13 +533,11 @@ function App() {
               bookedByLastName: currentUserLastName,
               bookedByEmail: currentUserEmail,
             }, { authMode: 'userPool' });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+            const [year, month, day] = dateSlot.split('-').map(Number);
             setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} booked.`);
             hideModal();
         }
       } else {
-        // Removed assignment to 'newTodo' as it was unused.
         await client.models.Todo.create({
           dateSlot: dateSlot,
           timeSlot: timeSlot,
@@ -551,8 +546,7 @@ function App() {
           bookedByLastName: currentUserLastName,
           bookedByEmail: currentUserEmail,
         }, { authMode: 'userPool' });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [year, month, day] = dateSlot.split('-').map(Number); // Added eslint-disable-next-line
+        const [year, month, day] = dateSlot.split('-').map(Number);
         setModalContent(`New slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} created and booked!`);
         hideModal();
       }
@@ -569,8 +563,8 @@ function App() {
       } else {
         setModalContent("Failed to update slot. Please try again.");
       }
-      hideModal();
     }
+    hideModal();
   };
 
   const handleWaitlistToggle = async () => {
@@ -661,14 +655,6 @@ function App() {
     );
   }
 
-  // Removed 'displayNameForHeader' as it was assigned a value but never used.
-  // const displayNameForHeader = formatDisplayName(
-  //   user?.attributes?.given_name,
-  //   user?.attributes?.family_name,
-  //   user?.attributes?.email,
-  //   user?.username
-  // );
-
   return (
     <main style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '1rem', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{
@@ -748,14 +734,14 @@ function App() {
           borderBottom: '1px solid #e5e7eb',
         }}>
           <img
-            src="/grtaheader.png" // Placeholder URL
+            src="grtaheader.png" // Placeholder URL
             alt="Grand River Tennis Lessons Logo"
             style={{
               width: '100%', // Make it responsive
-              maxWidth: '600px', // Limit max width to a reasonable size
+              maxWidth: '650px', // Limit max width to a reasonable size
               height: 'auto', // Maintain aspect ratio
-        //      borderRadius: '0.5rem', // Apply rounded corners
-         //     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+       //       borderRadius: '0.5rem', // Apply rounded corners
+        //      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
             // Fallback for image loading errors (optional, but good practice)
             onError={(e) => {
