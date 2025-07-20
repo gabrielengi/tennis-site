@@ -734,14 +734,14 @@ function App() {
           borderBottom: '1px solid #e5e7eb',
         }}>
           <img
-            src="https://placehold.co/1200x278/E0E7FF/000000?text=Grand+River+Tennis+Lessons+Logo" // Placeholder URL
+            src="grtaheader.png" // Placeholder URL
             alt="Grand River Tennis Lessons Logo"
             style={{
               width: '100%', // Make it responsive
-              maxWidth: '800px', // Limit max width to a reasonable size
+              maxWidth: '650px', // Limit max width to a reasonable size
               height: 'auto', // Maintain aspect ratio
-              borderRadius: '0.5rem', // Apply rounded corners
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+       //       borderRadius: '0.5rem', // Apply rounded corners
+        //      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
             // Fallback for image loading errors (optional, but good practice)
             onError={(e) => {
