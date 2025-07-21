@@ -677,69 +677,74 @@ function App() {
         boxSizing: 'border-box', // Include padding in width calculation for this div
       }}>
 
-        <div style={{
-          position: 'absolute',
-          top: '1.5rem',
-          right: '1.5rem',
-          zIndex: 10,
-        }}>
-          {user ? (
-            <button
-              onClick={signOut}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#f0f0f0', // Light gray
-                color: '#4a4a4a', // Darker gray text
-                fontWeight: '600',
-                borderRadius: '0.375rem',
-                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // Softer shadow
-                transition: 'background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                border: '1px solid #d0d0d0', // Subtle border
-                cursor: 'pointer',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#e0e0e0'; // Slightly darker gray on hover
-                e.currentTarget.style.boxShadow = '0 2px 4px 0 rgba(0, 0, 0, 0.1)'; // Slightly more pronounced shadow on hover
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#f0f0f0';
-                e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-              }}
-            >
-              Sign out
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowAuth(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#2563eb',
-                color: '#ffffff',
-                fontWeight: '600',
-                borderRadius: '0.375rem',
-                boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
-                transition: 'background-color 0.2s ease-in-out',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-            >
-              Sign In / Sign Up
-            </button>
-          )}
-        </div>
-
-        {/* Header section with logo instead of title */}
+        {/* Header section with logo and sign-in/out button */}
         <div style={{
           marginBottom: '1.5rem',
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'column', // Stack vertically by default
           alignItems: 'center', // Center items horizontally
-          justifyContent: 'center', // Center content if it were a row
+          justifyContent: 'center',
           paddingBottom: '0.5rem',
           borderBottom: '1px solid #e5e7eb',
+          gap: '1rem', // Space between logo and button
         }}>
+          {/* Sign In / Sign Out Button - Moved inside the flex container */}
+          <div style={{
+            width: '100%', // Take full width to allow text-align
+            textAlign: 'right', // Align button to the right
+            paddingRight: '0.5rem', // Small padding from the right edge
+            boxSizing: 'border-box',
+          }}>
+            {user ? (
+              <button
+                onClick={signOut}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f0f0f0', // Light gray
+                  color: '#4a4a4a', // Darker gray text
+                  fontWeight: '600',
+                  borderRadius: '0.375rem',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // Softer shadow
+                  transition: 'background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  border: '1px solid #d0d0d0', // Subtle border
+                  cursor: 'pointer',
+                  fontSize: '0.875rem', // Smaller font size for mobile
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e0e0e0'; // Slightly darker gray on hover
+                  e.currentTarget.style.boxShadow = '0 2px 4px 0 rgba(0, 0, 0, 0.1)'; // Slightly more pronounced shadow on hover
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f0f0f0';
+                  e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                }}
+              >
+                Sign out
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAuth(true)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#2563eb',
+                  color: '#ffffff',
+                  fontWeight: '600',
+                  borderRadius: '0.375rem',
+                  boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
+                  transition: 'background-color 0.2s ease-in-out',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem', // Smaller font size for mobile
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+              >
+                Sign In / Sign Up
+              </button>
+            )}
+          </div>
+
+          {/* Logo */}
           <img
             src="grtaheader.png" // Placeholder URL
             alt="Grand River Tennis Lessons Logo"
@@ -747,6 +752,7 @@ function App() {
               width: '100%', // Make it responsive
               maxWidth: '700px', // Limit max width to a reasonable size
               height: 'auto', // Maintain aspect ratio
+              marginTop: '-2rem', // Pull logo up to reduce gap
             }}
             // Fallback for image loading errors (optional, but good practice)
             onError={(e) => {
