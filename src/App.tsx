@@ -515,7 +515,7 @@ function App() {
               dateSlot: targetTodo.dateSlot,
               timeSlot: targetTodo.timeSlot,
               firstName: targetTodo.bookedByFirstName || 'N/A',
-              lastName: targetTodo.bookedByLastName || 'N/A',
+              lastName: targetTodo.bookedByLastName || 'N/A', // Corrected from targetTodo.lastName to targetTodo.bookedByLastName
               email: targetTodo.bookedByEmail || 'N/A',
             });
             setShowBookerDetailsModal(true);
@@ -654,7 +654,7 @@ function App() {
   return (
     <main style={{
       minHeight: '100vh',
-      backgroundColor: '#f3f4f6',
+      // Removed backgroundColor to allow index.css gradient to show
       fontFamily: 'sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -677,7 +677,7 @@ function App() {
         boxSizing: 'border-box', // Include padding in width calculation for this div
       }}>
 
-        {/* Header section with logo and sign-in/out button */}
+        {/* Header section with text title and sign-in/out button */}
         <div style={{
           marginBottom: '1.5rem',
           display: 'flex',
@@ -686,9 +686,9 @@ function App() {
           justifyContent: 'center',
           paddingBottom: '0.5rem',
           borderBottom: '1px solid #e5e7eb',
-          gap: '1rem', // Space between logo and button
+          gap: '1rem', // Space between title and button
         }}>
-          {/* Sign In / Sign Out Button - Moved inside the flex container */}
+          {/* Sign In / Sign Out Button - Positioned to the top right */}
           <div style={{
             width: '100%', // Take full width to allow text-align
             textAlign: 'right', // Align button to the right
@@ -744,22 +744,17 @@ function App() {
             )}
           </div>
 
-          {/* Logo */}
-          <img
-            src="grtaheader.png" // Placeholder URL
-            alt="Grand River Tennis Lessons Logo"
-            style={{
-              width: '100%', // Make it responsive
-              maxWidth: '700px', // Limit max width to a reasonable size
-              height: 'auto', // Maintain aspect ratio
-              marginTop: '-2rem', // Pull logo up to reduce gap
-            }}
-            // Fallback for image loading errors (optional, but good practice)
-            onError={(e) => {
-              e.currentTarget.onerror = null; // Prevents infinite loop if fallback also fails
-              e.currentTarget.src = "https://placehold.co/800x185/E0E7FF/000000?text=Logo+Unavailable";
-            }}
-          />
+          {/* Text Title */}
+          <h1 style={{
+            fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', // Responsive font size
+            fontWeight: 'bold',
+            color: '#1f2937',
+            textAlign: 'center',
+            margin: '0', // Remove default margins
+            marginTop: '-1rem', // Adjust as needed to reduce gap with button
+          }}>
+            Grand River Tennis Lessons
+          </h1>
         </div>
 
         {/* Tennis Coaching Blurb - Updated content and alignment */}
