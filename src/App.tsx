@@ -433,9 +433,8 @@ function App() {
         bookedByLastName: null,
         bookedByEmail: null,
       }, { authMode: 'userPool' });
-      // FIX: Access .data property from the result for TypeScript correctness
+      // Access .data property from the result for TypeScript correctness
       if (updatedTodoResult.data) {
-        // Removed the unused destructuring of [year, month, day] as they were not used here.
         setModalContent("Booking successfully removed by admin.");
       } else {
         setModalContent("Failed to remove booking: No data returned.");
@@ -504,14 +503,11 @@ function App() {
             bookedByLastName: null,
             bookedByEmail: null,
           }, { authMode: 'userPool' });
-          const [year, month, day] = dateSlot.split('-').map(Number);
-          setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} unbooked.`);
+          setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} unbooked.`);
           hideModal();
         }
         else if (targetTodo.bookedByUsername !== null) {
-          const [year, month, day] = dateSlot.split('-').map(Number);
-          // Directly use the date in getFormattedDate
-          setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
+          setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
           hideModal();
           if (isAdmin) {
             setBookerDetails({
@@ -519,13 +515,14 @@ function App() {
               dateSlot: targetTodo.dateSlot,
               timeSlot: targetTodo.timeSlot,
               firstName: targetTodo.bookedByFirstName || 'N/A',
-              lastName: targetTodo.bookedByLastName || 'N/A',
+              lastName: targetTodo.bookedByLastName || 'N/A', // Corrected from targetTodo.lastName to targetTodo.bookedByLastName
               email: targetTodo.bookedByEmail || 'N/A',
             });
             setShowBookerDetailsModal(true);
           }
         }
         else {
+            // FIX: Changed from .create to .update for booking an existing unbooked slot
             await client.models.Todo.update({
               id: targetTodo.id,
               bookedByUsername: currentUserLoginId,
@@ -533,11 +530,11 @@ function App() {
               bookedByLastName: currentUserLastName,
               bookedByEmail: currentUserEmail,
             }, { authMode: 'userPool' });
-            const [year, month, day] = dateSlot.split('-').map(Number);
-            setModalContent(`Slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} booked.`);
+            setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} booked.`);
             hideModal();
         }
       } else {
+        // This 'else' block handles the case where targetTodo is NOT found, meaning it's a new slot to be created.
         await client.models.Todo.create({
           dateSlot: dateSlot,
           timeSlot: timeSlot,
@@ -546,8 +543,7 @@ function App() {
           bookedByLastName: currentUserLastName,
           bookedByEmail: currentUserEmail,
         }, { authMode: 'userPool' });
-        const [year, month, day] = dateSlot.split('-').map(Number);
-        setModalContent(`New slot ${getFormattedDate(new Date(year, month - 1, day), 'display')} ${timeSlot} created and booked!`);
+        setModalContent(`New slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} created and booked!`);
         hideModal();
       }
     } catch (error: unknown) {
@@ -656,129 +652,139 @@ function App() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '1rem', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <main style={{
+      minHeight: '100vh',
+      // Removed backgroundColor to allow index.css gradient to show
+      fontFamily: 'sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '100vw', // Ensure main takes full viewport width
+      overflowX: 'hidden', // Prevent main from causing horizontal scroll
+      boxSizing: 'border-box', // Include padding in width calculation for main
+    }}>
       <div style={{
-        width: '100%',
+        width: '100%', // Take full width of its parent (main, which is 100vw)
         maxWidth: '64rem',
         backgroundColor: '#ffffff',
         borderRadius: '0.5rem',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        padding: '1.5rem',
+        padding: 'clamp(1rem, 5vw, 1.5rem)', // Responsive padding for content
         flexShrink: 0,
         maxHeight: 'calc(100vh - 2rem)',
-        overflowY: 'auto',
+        overflowY: 'auto', // Allow vertical scrolling for the content box
         position: 'relative',
+        boxSizing: 'border-box', // Include padding in width calculation for this div
       }}>
 
-        <div style={{
-          position: 'absolute',
-          top: '1.5rem',
-          right: '1.5rem',
-          zIndex: 10,
-        }}>
-          {user ? (
-            <button
-              onClick={signOut}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#f0f0f0', // Light gray
-                color: '#4a4a4a', // Darker gray text
-                fontWeight: '600',
-                borderRadius: '0.375rem',
-                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // Softer shadow
-                transition: 'background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                border: '1px solid #d0d0d0', // Subtle border
-                cursor: 'pointer',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#e0e0e0'; // Slightly darker gray on hover
-                e.currentTarget.style.boxShadow = '0 2px 4px 0 rgba(0, 0, 0, 0.1)'; // Slightly more pronounced shadow on hover
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#f0f0f0';
-                e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-              }}
-            >
-              Sign out
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowAuth(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#2563eb',
-                color: '#ffffff',
-                fontWeight: '600',
-                borderRadius: '0.375rem',
-                boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
-                transition: 'background-color 0.2s ease-in-out',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-            >
-              Sign In / Sign Up
-            </button>
-          )}
-        </div>
-
-        {/* Header section with logo instead of title */}
+        {/* Header section with text title and sign-in/out button */}
         <div style={{
           marginBottom: '1.5rem',
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'column', // Stack vertically by default
           alignItems: 'center', // Center items horizontally
-          justifyContent: 'center', // Center content if it were a row
+          justifyContent: 'center',
           paddingBottom: '0.5rem',
           borderBottom: '1px solid #e5e7eb',
+          gap: '1rem', // Space between title and button
         }}>
-          <img
-            src="grtaheader.png" // Placeholder URL
-            alt="Grand River Tennis Lessons Logo"
-            style={{
-              width: '100%', // Make it responsive
-              maxWidth: '650px', // Limit max width to a reasonable size
-              height: 'auto', // Maintain aspect ratio
-       //       borderRadius: '0.5rem', // Apply rounded corners
-        //      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            }}
-            // Fallback for image loading errors (optional, but good practice)
-            onError={(e) => {
-              e.currentTarget.onerror = null; // Prevents infinite loop if fallback also fails
-              e.currentTarget.src = "https://placehold.co/800x185/E0E7FF/000000?text=Logo+Unavailable";
-            }}
-          />
+          {/* Sign In / Sign Out Button - Positioned to the top right */}
+          <div style={{
+            width: '100%', // Take full width to allow text-align
+            textAlign: 'right', // Align button to the right
+            paddingRight: '0.5rem', // Small padding from the right edge
+            boxSizing: 'border-box',
+          }}>
+            {user ? (
+              <button
+                onClick={signOut}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f0f0f0', // Light gray
+                  color: '#4a4a4a', // Darker gray text
+                  fontWeight: '600',
+                  borderRadius: '0.375rem',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // Softer shadow
+                  transition: 'background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  border: '1px solid #d0d0d0', // Subtle border
+                  cursor: 'pointer',
+                  fontSize: '0.875rem', // Smaller font size for mobile
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e0e0e0'; // Slightly darker gray on hover
+                  e.currentTarget.style.boxShadow = '0 2px 4px 0 rgba(0, 0, 0, 0.1)'; // Slightly more pronounced shadow on hover
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f0f0f0';
+                  e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                }}
+              >
+                Sign out
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAuth(true)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#2563eb',
+                  color: '#ffffff',
+                  fontWeight: '600',
+                  borderRadius: '0.375rem',
+                  boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
+                  transition: 'background-color 0.2s ease-in-out',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem', // Smaller font size for mobile
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+              >
+                Sign In / Sign Up
+              </button>
+            )}
+          </div>
+
+          {/* Text Title */}
+          <h1 style={{
+            fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', // Responsive font size
+            fontWeight: 'bold',
+            color: '#1f2937',
+            textAlign: 'center',
+            margin: '0', // Remove default margins
+            marginTop: '-1rem', // Adjust as needed to reduce gap with button
+          }}>
+            Grand River Tennis Lessons
+          </h1>
         </div>
 
         {/* Tennis Coaching Blurb - Updated content and alignment */}
-        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151' }}> {/* Changed textAlign to 'left' */}
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Hello! My name is Gabriel, and I'm looking to share my love for tennis and provide affordable lessons to people of all ages and skill levels.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             I have experience coaching private lessons, assistant coaching for a tennis camp, and being a hitting partner for top junior OTA players.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Lessons are held at the public courts at WCI. We are limited to a couple cans of balls. There's also a small chance the courts will be preoccupied, in which case we'll work on technique, volleys, and hitting against a wall until a court becomes available.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Lessons are <strong>$30 for a 1-hour session</strong>, with your <strong>first lesson only $10!</strong> You can also come with friends and split the cost. Click on an available space in the calendar to book a lesson, and I'll personally send you an email to confirm. Currently, I'm only accepting <strong>cash payments</strong>.
           </p>
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5' }}> {/* Removed individual horizontal margins */}
             If you want to cancel a booking, simply click your slot on the calendar. Please try to avoid canceling within 3 hours of the lesson, but if you forget, there are no fees or worries.
           </p>
         </div>
 
         {/* Group Lesson Description - Updated content and alignment */}
-        <div style={{ marginBottom: '1rem', textAlign: 'left', color: '#374151' }}> {/* Changed textAlign to 'left' */}
-          <p style={{ fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Added horizontal margins for indent */}
+        <div style={{ marginBottom: '1rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
+          <p style={{ fontSize: '1rem', lineHeight: '1.5' }}> {/* Removed individual horizontal margins */}
             Interested in <strong>group sessions</strong>? I'm looking to organize longer group sessions with a mix of tennis drills and singles/doubles matches. Sign up for the waitlist, and once I have enough interest, I'll email everyone to work something out.
           </p>
         </div>
 
         {/* Email Contact Line - Added here and aligned left */}
-        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', fontSize: '1rem', lineHeight: '1.5', marginLeft: '1rem', marginRight: '1rem' }}> {/* Changed textAlign to 'left' and added horizontal margins */}
+        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', fontSize: '1rem', lineHeight: '1.5', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
             <p>Feel free to email <a href="mailto:gabriel.jsh@gmail.com" style={{ color: '#2563eb', textDecoration: 'underline' }}>gabriel.jsh@gmail.com</a> if you have any questions!</p>
         </div>
 
@@ -824,12 +830,13 @@ function App() {
           )}
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto', width: '100%', boxSizing: 'border-box' }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: `80px repeat(7, 1fr)`,
+            gridTemplateColumns: `80px repeat(7, minmax(80px, 1fr))`, // Fixed 80px for the time column
             gap: '0.25rem',
             fontSize: '0.875rem',
+            minWidth: '750px', // Increased minWidth to ensure horizontal scroll
           }}>
             <div style={{ padding: '0.5rem', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', backgroundColor: '#f9fafb', fontWeight: '600', color: '#374151', borderRadius: '0.5rem 0 0 0', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></div>
             {sevenDates.map((dateObj) => (
