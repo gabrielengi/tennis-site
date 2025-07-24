@@ -758,7 +758,7 @@ function App() {
         </div>
 
         {/* Tennis Coaching Blurb - Updated content and alignment */}
-        <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
+   <div style={{ marginBottom: '1.5rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Hello! My name is Gabriel, and I'm looking to share my love for tennis and provide affordable lessons to people of all ages and skill levels.
           </p>
@@ -766,7 +766,7 @@ function App() {
             I have experience coaching private lessons, assistant coaching for a tennis camp, and being a hitting partner for top junior OTA players.
           </p>
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
-            Lessons are held at the public courts at WCI. We are limited to a couple cans of balls. There's also a small chance the courts will be preoccupied, in which case we'll work on technique, volleys, and hitting against a wall until a court becomes available.
+            The lessons will take place at the public WCI courts. Please note that in using a public court to keep costs low, we are limited to a couple tins of balls and there's a <strong> chance the courts will be occupied, especially during evening hours.</strong> In this case, we'll train just as effectively off-court, working on technique, volleys, and hitting against a wall until a court becomes available.
           </p>
           <p style={{ fontSize: '1rem', lineHeight: '1.5', marginBottom: '1rem' }}> {/* Removed individual horizontal margins */}
             Lessons are <strong>$30 for a 1-hour session</strong>, with your <strong>first lesson only $10!</strong> You can also come with friends and split the cost. Click on an available space in the calendar to book a lesson, and I'll personally send you an email to confirm. Currently, I'm only accepting <strong>cash payments</strong>.
@@ -779,7 +779,7 @@ function App() {
         {/* Group Lesson Description - Updated content and alignment */}
         <div style={{ marginBottom: '1rem', textAlign: 'left', color: '#374151', paddingLeft: '1rem', paddingRight: '1rem' }}> {/* Added horizontal padding to the container */}
           <p style={{ fontSize: '1rem', lineHeight: '1.5' }}> {/* Removed individual horizontal margins */}
-            Interested in <strong>group sessions</strong>? I'm looking to organize longer group sessions with a mix of tennis drills and singles/doubles matches. Sign up for the waitlist, and once I have enough interest, I'll email everyone to work something out.
+            Interested in <strong>group sessions</strong>? I'm looking to organize longer group sessions at a private court with a mix of tennis drills and singles/doubles matches. Sign up for the waitlist, and once I have enough interest, I'll email everyone to work something out.
           </p>
         </div>
 
