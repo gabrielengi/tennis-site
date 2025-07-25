@@ -1,41 +1,47 @@
 // amplify/data/resource.ts
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { sendEmailFunction } from '../functions/send-email-notification/resource'; // <--- IMPORT THE FUNCTION HERE
 
 const schema = a.schema({
   Todo: a
     .model({
       dateSlot: a.string().required(), // e.g., "YYYY-MM-DD"
       timeSlot: a.string().required(), // e.g., "HH:MM"
-      bookedByUsername: a.string(), // The username (e.g., google_112...)
-      bookedByFirstName: a.string(), // Booker's first name
-      bookedByLastName: a.string(),  // Booker's last name
-      bookedByEmail: a.string(),     // Booker's email
+      bookedByUsername: a.string(),
+      bookedByFirstName: a.string(),
+      bookedByLastName: a.string(),
+      bookedByEmail: a.string(),
     })
     .authorization(allow => [
-      allow.owner(), // Owner can do anything to their own booked slot (read, create, update, delete)
-      allow.groups(['Admins']).to(['read', 'create', 'update', 'delete']), // Admins have full control over all Todo items
-      // Authenticated users need 'read' to see the schedule and 'update' to book/unbook slots.
-      // 'create' is not needed here as Todo items are pre-created by the initial data setup.
+      allow.owner(),
+      allow.groups(['Admins']).to(['read', 'create', 'update', 'delete']),
       allow.authenticated().to(['read', 'update']),
-      allow.publicApiKey().to(['read']) // Public (unauthenticated) users can read all Todo items (view schedule)
+      allow.publicApiKey().to(['read'])
     ]),
 
   WaitlistEntry: a
     .model({
       email: a.string().required(),
-      firstName: a.string(), // ADDED firstName
-      lastName: a.string(),  // ADDED lastName
-      createdAt: a.datetime().required(), // Using datetime for consistency and proper sorting
+      firstName: a.string(),
+      lastName: a.string(),
+      createdAt: a.datetime().required(),
     })
     .authorization(allow => [
-      allow.owner(), // Only the owner can read/update/delete their waitlist entry
-      // CRITICAL FIX: Authenticated users need 'create', 'read', and 'delete' permission to manage their waitlist status.
+      allow.owner(),
       allow.authenticated().to(['create', 'read', 'delete']),
-      allow.groups(['Admins']).to(['read', 'create', 'update', 'delete']), // Admins can manage all waitlist entries
-      // Removed allow.guest().to(['read']) and allow.publicApiKey().to(['read']) for WaitlistEntry
-      // as waitlist entries are typically private to authenticated users and admins.
-      // If public read is desired, these can be re-added carefully.
+      allow.groups(['Admins']).to(['read', 'create', 'update', 'delete']),
     ]),
+
+  // This mutation will trigger your email Lambda
+  sendNotificationEmail: a // This is the name your frontend will call
+    .mutation()
+    .arguments({
+      subject: a.string().required(), // Your Lambda handler expects 'subject'
+      body: a.string().required()     // Your Lambda handler expects 'body'
+    })
+    .returns(a.json()) // Lambda returns { statusCode, body } JSON
+    .authorization(allow => [allow.authenticated()]) // Requires authenticated user to call
+    .handler(a.handler.function(sendEmailFunction)) // <--- REFERENCE THE IMPORTED FUNCTION VARIABLE
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -43,7 +49,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'userPool', // Ensures authenticated users use User Pool auth by default
+    defaultAuthorizationMode: 'userPool',
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
