@@ -8,6 +8,7 @@ import { Hub } from '@aws-amplify/core';
 import { Subscription } from 'rxjs';
 import { AuthUser, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
 import { sendEmail } from './utils/emailService';
+import { getAmplifyEnvironmentName } from './utils/envUtils';
 
 
 // Define an extended AuthUser type that explicitly includes attributes and session for groups
@@ -187,6 +188,8 @@ function App() {
   // State to track if the current user is in the waitlist, now dependent on currentUserIdentifierForWaitlist
   const [isUserInWaitlist, setIsUserInWaitlist] = useState(false);
 
+  const [currentEnvironment, setCurrentEnvironment] = useState<string>('loading...');
+
 
   const sevenDates = getSevenDatesFromToday();
 
@@ -198,6 +201,9 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const env = getAmplifyEnvironmentName();
+    setCurrentEnvironment(env);
+    
     const removeListener = Hub.listen('core', (data) => {
       if (data.payload.event === 'configured') {
         setIsAmplifyConfigured(true);
@@ -499,7 +505,7 @@ function App() {
       if (targetTodo) {
 
           await sendEmail(
-            'GRT BOOKING',
+            `GRT BOOKING ${currentEnvironment}`,
             `BOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
           );
    
