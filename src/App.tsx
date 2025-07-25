@@ -213,7 +213,7 @@ function App() {
     if (Object.keys(Amplify.getConfig()).length > 0) {
       setIsAmplifyConfigured(true);
     }
-    console.log('Amplify Configuration in Production:', Amplify.getConfig());
+  //  console.log('Amplify Configuration in Production:', Amplify.getConfig());
     return () => removeListener();
   }, []);
 
