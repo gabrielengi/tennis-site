@@ -7,6 +7,8 @@ import { Amplify } from 'aws-amplify';
 import { Hub } from '@aws-amplify/core';
 import { Subscription } from 'rxjs';
 import { AuthUser, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
+import { sendEmail } from './utils/emailService';
+
 
 // Define an extended AuthUser type that explicitly includes attributes and session for groups
 interface CustomAuthUser extends AuthUser {
@@ -495,7 +497,21 @@ function App() {
 
     try {
       if (targetTodo) {
+        console.log("sendemail");
+           try {
+//const message = 
+await sendEmail(
+  'Test Subject from My Amplify App',
+  'This is a test email from my Amplify Gen 2 application. This content is longer than a single character.'
+);
+   
+    } catch (error: any) {
+
+    } finally {
+    }
+ 
         if (targetTodo.bookedByUsername === currentUserLoginId) {
+
           await client.models.Todo.update({
             id: targetTodo.id,
             bookedByUsername: null,
@@ -523,6 +539,10 @@ function App() {
         }
         else {
             // FIX: Changed from .create to .update for booking an existing unbooked slot
+
+
+
+
             await client.models.Todo.update({
               id: targetTodo.id,
               bookedByUsername: currentUserLoginId,

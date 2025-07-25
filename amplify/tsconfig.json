@@ -1,17 +1,32 @@
+// amplify/tsconfig.json
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "es2022",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
+    // ... other existing options ...
+    "baseUrl": ".", // Important: set a base URL for paths
+    "paths": {
+      "$amplify/*": [
+        "./.amplify/generated/*" // This tells TypeScript where to find the generated env files
+      ]
+    },
+    "target": "es2020", // Recommended target for Lambda
+    "module": "commonjs", // Lambda environment often uses CommonJS
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "paths": {
-      "$amplify/*": [
-        "../.amplify/generated/*"
-      ]
-    }
-  }
+    "noEmit": true, // Do not emit output files, bundling is handled by esbuild
+    "allowJs": true,
+    "checkJs": true,
+    "lib": ["es2020"],
+    "types": ["node"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.d.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
