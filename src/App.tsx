@@ -497,18 +497,12 @@ function App() {
 
     try {
       if (targetTodo) {
-        console.log("sendemail");
-           try {
-//const message = 
-await sendEmail(
-  'GRT BOOKING',
-  `BOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${targetTodo.bookedByEmail}, ${targetTodo.bookedByFirstName}, ${targetTodo.bookedByLastName}`
-);
-   
-    } catch (error: any) {
 
-    } finally {
-    }
+          await sendEmail(
+            'GRT BOOKING',
+            `BOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
+          );
+   
  
         if (targetTodo.bookedByUsername === currentUserLoginId) {
 
@@ -521,10 +515,7 @@ await sendEmail(
           }, { authMode: 'userPool' });
           setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} unbooked.`);
           hideModal();
-          await sendEmail(
-  'GRT UNBOOKING',
-  `UNBOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${targetTodo.bookedByEmail}, ${targetTodo.bookedByFirstName}, ${targetTodo.bookedByLastName}`
-);
+
         }
         else if (targetTodo.bookedByUsername !== null) {
           setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
@@ -569,6 +560,10 @@ await sendEmail(
         }, { authMode: 'userPool' });
         setModalContent(`New slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} created and booked!`);
         hideModal();
+        await sendEmail(
+          'GRT UNBOOKING',
+            `UNBOOKING ${timeSlot}, ${dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
+        );
       }
     } catch (error: unknown) {
       console.error("Error booking/unbooking slot:", error);
