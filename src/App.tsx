@@ -501,8 +501,8 @@ function App() {
            try {
 //const message = 
 await sendEmail(
-  'Test Subject from My Amplify App',
-  'This is a test email from my Amplify Gen 2 application. This content is longer than a single character.'
+  'GRT BOOKING',
+  `BOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${targetTodo.bookedByEmail}, ${targetTodo.bookedByFirstName}, ${targetTodo.bookedByLastName}`
 );
    
     } catch (error: any) {
@@ -521,6 +521,10 @@ await sendEmail(
           }, { authMode: 'userPool' });
           setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} unbooked.`);
           hideModal();
+          await sendEmail(
+  'GRT UNBOOKING',
+  `UNBOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${targetTodo.bookedByEmail}, ${targetTodo.bookedByFirstName}, ${targetTodo.bookedByLastName}`
+);
         }
         else if (targetTodo.bookedByUsername !== null) {
           setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
