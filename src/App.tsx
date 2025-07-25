@@ -499,7 +499,8 @@ function App() {
       if (targetTodo) {
         console.log("sendemail");
            try {
-const message = await sendEmail(
+//const message = 
+await sendEmail(
   'Test Subject from My Amplify App',
   'This is a test email from my Amplify Gen 2 application. This content is longer than a single character.'
 );
