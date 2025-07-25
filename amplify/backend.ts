@@ -24,7 +24,7 @@ lambdaFunction.addToRolePolicy(
 // Add Environment Variables: These will be available in your Lambda handler via process.env.VAR_NAME
 lambdaFunction.addEnvironment(
   'SENDER_EMAIL',
-  'gabriel.jsh@gmail.com' // Replace with your VERIFIED SES sender email
+  'no-reply@grandrivertennis.ca' // Replace with your VERIFIED SES sender email
 );
 
 lambdaFunction.addEnvironment(
