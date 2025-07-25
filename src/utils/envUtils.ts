@@ -12,22 +12,41 @@ export function getAmplifyEnvironmentName(): string {
 
   // 1. Check for local development/sandbox environment
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // You can customize this to 'development' if you prefer, but 'sandbox'
-    // often aligns well with local Amplify deployments.
+    // Returns 'sandbox' for local development
     return 'sandbox';
   }
 
-  // 2. Check for common deployed Amplify Hosting patterns
-  // Examples: 'main.dXXXX.amplifyapp.com', 'prod.dXXXX.amplifyapp.com', 'your-branch.dXXXX.amplifyapp.com'
-  const parts = hostname.split('.');
+  // 2. Check for standard Amplify Hosting domains
+  // This regex matches patterns like:
+  // - branch-name.dXXXXXXXXXXXXX.amplifyapp.com (e.g., 'main.d123abc.amplifyapp.com')
+  // - dXXXXXXXXXXXXX.amplifyapp.com (the root domain for the Amplify app, often mapped to 'main' or 'prod')
+  const amplifyAppDomainMatch = hostname.match(/^(?:([^.]+)\.)?(d[a-z0-9]+)\.amplifyapp\.com$/);
 
-  // This condition looks for the pattern: [branch-name].[hash].amplifyapp.com
-  // It checks if there are at least 3 parts (branch.hash.amplifyapp.com)
-  // and if the last two parts form the Amplify App domain.
-  if (parts.length >= 3 && parts[parts.length - 2]?.endsWith('amplifyapp') && parts[parts.length - 1] === 'com') {
-    // The first part of the hostname is typically the branch name or environment name
-    return parts[0]; // Returns 'main', 'prod', 'dev', 'feature-branch-name', etc.
+  if (amplifyAppDomainMatch) {
+    // amplifyAppDomainMatch[1] captures the branch name (e.g., 'main', 'dev', 'prod') if it exists.
+    // If the hostname is just dXXXXXXXXXXXXX.amplifyapp.com, amplifyAppDomainMatch[1] will be undefined.
+    const branchName = amplifyAppDomainMatch[1];
+
+    if (branchName) {
+      // If a branch name is explicitly present (e.g., 'main', 'dev', 'feature-x'), return it.
+      return branchName;
+    } else {
+      // If no explicit branch name is found (e.g., dXXXXXXXXXXXXX.amplifyapp.com),
+      // this typically corresponds to the default branch in Amplify Hosting (often 'main' or 'prod').
+      // You might need to adjust 'main' to 'prod' here if your root app domain is specifically your production environment.
+      return 'main'; // Default to 'main' if no branch prefix is found.
+    }
   }
+
+  // 3. Add specific logic for custom domains.
+  // Check for your custom production domain 'grandrivertennis.ca' or subdomains like 'prod.grandrivertennis.ca'
+  if (hostname === 'grandrivertennis.ca' || hostname.startsWith('prod.grandrivertennis.ca')) {
+    return 'prod';
+  }
+  // Example for other custom domains or environments:
+  // if (hostname === 'dev.yourtennislessons.com') {
+  //   return 'dev';
+  // }
 
   // Fallback if none of the known patterns match
   return 'unknown';
