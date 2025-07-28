@@ -7,8 +7,8 @@ import { Amplify } from 'aws-amplify';
 import { Hub } from '@aws-amplify/core';
 import { Subscription } from 'rxjs';
 import { AuthUser, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
-import { sendEmail } from './utils/emailService';
-import { getAmplifyEnvironmentName } from './utils/envUtils';
+import { sendEmail } from './utils/emailService'; // Assuming this path is correct
+import { getAmplifyEnvironmentName } from './utils/envUtils'; // Assuming this path is correct
 
 
 // Define an extended AuthUser type that explicitly includes attributes and session for groups
@@ -213,7 +213,7 @@ function App() {
     if (Object.keys(Amplify.getConfig()).length > 0) {
       setIsAmplifyConfigured(true);
     }
-  //  console.log('Amplify Configuration in Production:', Amplify.getConfig());
+   // console.log('Amplify Configuration in Production:', Amplify.getConfig());
     return () => removeListener();
   }, []);
 
@@ -264,6 +264,7 @@ function App() {
         } while (nextToken);
 
         setTodos(allExistingTodos);
+        console.log("Initial Todos loaded:", allExistingTodos); // Log initial load
 
         const expectedSlotKeys = new Set<string>();
         for (const dateObj of sevenDates) {
@@ -289,6 +290,7 @@ function App() {
         });
 
         if (idsToDelete.size > 0) {
+          console.log("Deleting stale/duplicate Todo items:", Array.from(idsToDelete));
           await Promise.allSettled(Array.from(idsToDelete).map(id => client.models.Todo.delete({ id })));
         }
 
@@ -310,6 +312,7 @@ function App() {
         }
 
         if (newSlotsToCreate.length > 0) {
+          console.log("Creating new Todo slots:", newSlotsToCreate.length);
           await Promise.allSettled(newSlotsToCreate.map(slot => client.models.Todo.create(slot)));
         }
 
@@ -325,6 +328,7 @@ function App() {
         } while (finalNextToken);
 
         setTodos(finalTodos);
+        console.log("Final Todos after setup:", finalTodos); // Log final state after setup
 
         initialLoadPerformed.current = true;
         setIsDataInitialized(true);
@@ -346,17 +350,22 @@ function App() {
       let calculatedIsAdmin = false;
       if (user?.username === 'google_116267331380489634932') {
         calculatedIsAdmin = true;
+        console.log("Admin status: Hardcoded Google user detected.");
       } else if (authStatus === 'authenticated') {
         try {
           const currentUser = await getCurrentUser();
+          console.log("Current authenticated user for admin check:", currentUser);
           const groups = (currentUser as CustomAuthUser).signInUserSession?.getAccessToken()?.payload['cognito:groups'];
           calculatedIsAdmin = groups?.includes('Admins') || false;
+          console.log("User groups:", groups);
+          console.log("Is user in 'Admins' group?", calculatedIsAdmin);
         } catch (error) {
           console.error("Error fetching current authenticated user for admin check:", error);
           calculatedIsAdmin = false;
         }
       }
       setIsAdmin(calculatedIsAdmin);
+      console.log("Final isAdmin state:", calculatedIsAdmin);
     };
 
     checkAdminStatus();
@@ -380,8 +389,10 @@ function App() {
     if (isDataInitialized && client) {
       todoSub = client.models.Todo.observeQuery().subscribe({
         next: ({ items }) => {
+          console.log("Todo observeQuery received items:", items); // Log incoming todo items
           const filteredItems = items.filter(isValidTodo);
           setTodos(filteredItems);
+          console.log("Todos state updated by observeQuery:", filteredItems); // Confirm state update
         },
         error: (error) => {
           console.error("Error observing todos in real-time:", error);
@@ -390,6 +401,7 @@ function App() {
 
       waitlistSub = client.models.WaitlistEntry.observeQuery().subscribe({
         next: ({ items }) => {
+          console.log("Waitlist observeQuery received items:", items); // Log incoming waitlist items
           const filteredItems = items.filter(isValidWaitlistEntry);
           setWaitlistEntries(filteredItems);
         },
@@ -421,6 +433,9 @@ function App() {
 
   // Function to handle removing a booking as admin
   const handleRemoveBookingAsAdmin = async (todoId: string) => {
+    console.log("Attempting to remove booking as admin for todoId:", todoId);
+    console.log("Current isAdmin status:", isAdmin);
+
     if (!isAdmin) {
       setModalContent("Unauthorized: Only the admin can remove other users' bookings.");
       hideModal();
@@ -441,16 +456,22 @@ function App() {
         bookedByLastName: null,
         bookedByEmail: null,
       }, { authMode: 'userPool' });
-      // Access .data property from the result for TypeScript correctness
+      
+      console.log("Result of admin remove booking update:", updatedTodoResult); // Log the full result
+      if (updatedTodoResult.errors && updatedTodoResult.errors.length > 0) {
+          console.error("Errors from admin remove booking update:", updatedTodoResult.errors);
+      }
+
       if (updatedTodoResult.data) {
         setModalContent("Booking successfully removed by admin.");
       } else {
-        setModalContent("Failed to remove booking: No data returned.");
+        // This is the specific error message you're seeing
+        setModalContent("Failed to remove booking: No data returned from backend update operation. Check console for errors.");
       }
       setShowBookerDetailsModal(false);
       hideModal();
     } catch (error: unknown) {
-      console.error("Error removing booking as admin:", error);
+      console.error("Error removing booking as admin (catch block):", error); // Log full error object
       if (
         typeof error === 'object' &&
         error !== null &&
@@ -460,7 +481,7 @@ function App() {
       ) {
         setModalContent("Permission denied: You do not have authorization to remove this booking. Please ensure you are signed in correctly.");
       } else {
-        setModalContent("Failed to remove booking. Please try again.");
+        setModalContent("Failed to remove booking due to an unexpected error. Please check console.");
       }
       hideModal();
     }
@@ -468,7 +489,12 @@ function App() {
 
   // Function to handle clicking on a schedule slot
   const handleSlotClick = async (dateSlot: string, timeSlot: string) => {
+    console.log(`Slot clicked: ${dateSlot} ${timeSlot}`);
+    console.log("Current authStatus:", authStatus);
+    console.log("Current user:", user);
+
     if (authStatus !== 'authenticated' || !user) {
+      setModalContent("Please sign in to book or unbook a slot.");
       setShowAuth(true);
       return;
     }
@@ -476,6 +502,7 @@ function App() {
     let latestUserAttributes;
     try {
       latestUserAttributes = await fetchUserAttributes();
+      console.log("Fetched user attributes:", latestUserAttributes);
     } catch (error) {
       console.error("Error fetching latest user attributes:", error);
       setModalContent("Failed to retrieve user details. Please try again.");
@@ -501,29 +528,36 @@ function App() {
         todo.dateSlot === dateSlot && todo.timeSlot === timeSlot
     );
 
+    console.log("Target Todo for slot:", targetTodo);
+
     try {
       if (targetTodo) {
-
-          await sendEmail(
-            `GRT BOOKING ${currentEnvironment}`,
-            `BOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
-          );
-   
- 
         if (targetTodo.bookedByUsername === currentUserLoginId) {
-
-          await client.models.Todo.update({
+          // User is unbooking their own slot
+          console.log("Attempting to unbook own slot:", targetTodo.id);
+          const unbookResult = await client.models.Todo.update({
             id: targetTodo.id,
             bookedByUsername: null,
             bookedByFirstName: null,
             bookedByLastName: null,
             bookedByEmail: null,
           }, { authMode: 'userPool' });
+          console.log("Unbook result:", unbookResult); // Log the unbook result
+          if (unbookResult.errors && unbookResult.errors.length > 0) {
+              console.error("Errors from unbook update:", unbookResult.errors);
+          }
           setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} unbooked.`);
           hideModal();
 
+          // Send unbooking email
+          await sendEmail(
+            `GRT UNBOOKING ${currentEnvironment}`,
+            `UNBOOKING ${timeSlot}, ${dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
+          );
+
         }
         else if (targetTodo.bookedByUsername !== null) {
+          // Slot is booked by someone else
           setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} is already booked by ${formatDisplayName(targetTodo.bookedByFirstName, targetTodo.bookedByLastName, targetTodo.bookedByEmail, targetTodo.bookedByUsername)}.`);
           hideModal();
           if (isAdmin) {
@@ -539,24 +573,33 @@ function App() {
           }
         }
         else {
-            // FIX: Changed from .create to .update for booking an existing unbooked slot
-
-
-
-
-            await client.models.Todo.update({
+            // Slot is unbooked, user is booking it
+            console.log("Attempting to book unbooked slot (update existing):", targetTodo.id);
+            const bookResult = await client.models.Todo.update({
               id: targetTodo.id,
               bookedByUsername: currentUserLoginId,
               bookedByFirstName: currentUserFirstName,
               bookedByLastName: currentUserLastName,
               bookedByEmail: currentUserEmail,
             }, { authMode: 'userPool' });
+            console.log("Book result (update):", bookResult); // Log the book result
+            if (bookResult.errors && bookResult.errors.length > 0) {
+                console.error("Errors from book update:", bookResult.errors);
+            }
             setModalContent(`Slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} booked.`);
             hideModal();
+
+            // Send booking email
+            await sendEmail(
+                `GRT BOOKING ${currentEnvironment}`,
+                `BOOKING ${targetTodo.timeSlot}, ${targetTodo.dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
+            );
         }
       } else {
         // This 'else' block handles the case where targetTodo is NOT found, meaning it's a new slot to be created.
-        await client.models.Todo.create({
+        // This should primarily happen if the initial data setup failed or the DynamoDB table was cleared.
+        console.log("Attempting to create and book a new slot (targetTodo not found):", dateSlot, timeSlot);
+        const newSlotResult = await client.models.Todo.create({
           dateSlot: dateSlot,
           timeSlot: timeSlot,
           bookedByUsername: currentUserLoginId,
@@ -564,15 +607,21 @@ function App() {
           bookedByLastName: currentUserLastName,
           bookedByEmail: currentUserEmail,
         }, { authMode: 'userPool' });
+        console.log("New slot creation result:", newSlotResult);
+        if (newSlotResult.errors && newSlotResult.errors.length > 0) {
+            console.error("Errors from new slot creation:", newSlotResult.errors);
+        }
         setModalContent(`New slot ${getFormattedDate(new Date(dateSlot), 'display')} ${timeSlot} created and booked!`);
         hideModal();
+        
+        // Corrected email subject and body for new slot creation
         await sendEmail(
-          'GRT UNBOOKING',
-            `UNBOOKING ${timeSlot}, ${dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
+          `GRT BOOKING ${currentEnvironment}`,
+            `BOOKING ${timeSlot}, ${dateSlot}, ${currentUserEmail}, ${currentUserFirstName}, ${currentUserLastName}`
         );
       }
     } catch (error: unknown) {
-      console.error("Error booking/unbooking slot:", error);
+      console.error("Error booking/unbooking slot (catch block):", error); // Log full error object
       if (
         typeof error === 'object' &&
         error !== null &&
@@ -582,7 +631,7 @@ function App() {
       ) {
         setModalContent("Permission denied: You do not have authorization to book this slot. Please ensure you are signed in correctly.");
       } else {
-        setModalContent("Failed to update slot. Please try again.");
+        setModalContent("Failed to update slot. Please try again. Check console for details.");
       }
     }
     hideModal();

@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-amplify/api": "^6.3.16",
     "@aws-amplify/api-rest": "latest",
+    "@aws-amplify/data-schema": "^1.21.1",
     "@aws-amplify/ui-react": "latest",
     "@aws-sdk/client-ses": "latest",
     "@emailjs/browser": "^4.4.1",
