@@ -41,7 +41,7 @@ interface GraphQLResponseError {
 
 // Define the time slots for the schedule
 const timeSlots = Array.from({ length: 13 }, (_, i) => {
-  const hour = 8 + i; // From 8 AM (08:00) to 8 PM (20:00)
+  const hour = 6 + i; // From 8 AM (08:00) to 8 PM (20:00)
   return `${hour.toString().padStart(2, '0')}:00`;
 });
 

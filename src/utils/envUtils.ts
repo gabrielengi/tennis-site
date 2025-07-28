@@ -16,7 +16,13 @@ export function getAmplifyEnvironmentName(): string {
     return 'sandbox';
   }
 
-  // 2. Check for standard Amplify Hosting domains
+  // 2. Check for specific custom production domains
+  // FIX: Added explicit check for grandrivertennis.ca and its www subdomain
+  if (hostname === 'grandrivertennis.ca' || hostname === 'www.grandrivertennis.ca') {
+    return 'prod';
+  }
+
+  // 3. Check for standard Amplify Hosting domains
   // This regex matches patterns like:
   // - branch-name.dXXXXXXXXXXXXX.amplifyapp.com (e.g., 'main.d123abc.amplifyapp.com')
   // - dXXXXXXXXXXXXX.amplifyapp.com (the root domain for the Amplify app, often mapped to 'main' or 'prod')
@@ -37,16 +43,6 @@ export function getAmplifyEnvironmentName(): string {
       return 'main'; // Default to 'main' if no branch prefix is found.
     }
   }
-
-  // 3. Add specific logic for custom domains.
-  // Check for your custom production domain 'grandrivertennis.ca' or subdomains like 'prod.grandrivertennis.ca'
-  if (hostname === 'grandrivertennis.ca' || hostname.startsWith('prod.grandrivertennis.ca')) {
-    return 'prod';
-  }
-  // Example for other custom domains or environments:
-  // if (hostname === 'dev.yourtennislessons.com') {
-  //   return 'dev';
-  // }
 
   // Fallback if none of the known patterns match
   return 'unknown';
